@@ -25,7 +25,7 @@
     },
     "extra": {
         "think-config": {
-            "model-helper": "src/config.php"
+            "social": "src/config.php"
         }
     }
 }
