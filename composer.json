@@ -21,7 +21,10 @@
     "autoload": {
         "psr-4": {
             "yunwuxin\\": "src"
-        }
+        },
+        "files": [
+            "src/common.php"
+        ]
     },
     "extra": {
         "think-config": {

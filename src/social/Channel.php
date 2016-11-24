@@ -70,6 +70,29 @@ abstract class Channel
     }
 
     /**
+     * Set redirect url.
+     *
+     * @param string $redirectUrl
+     *
+     * @return $this
+     */
+    public function withRedirectUrl($redirectUrl)
+    {
+        $this->redirectUrl = $redirectUrl;
+        return $this;
+    }
+
+    /**
+     * Return the redirect url.
+     *
+     * @return string
+     */
+    public function getRedirectUrl()
+    {
+        return $this->redirectUrl;
+    }
+
+    /**
      * 获取第三方平台登录成功后的用户
      */
     public function user()
@@ -91,6 +114,17 @@ abstract class Channel
     public function scopes(array $scopes)
     {
         $this->scopes = array_unique(array_merge($this->scopes, $scopes));
+        return $this;
+    }
+
+    /**
+     * 设置额外参数
+     * @param array $parameters
+     * @return $this
+     */
+    public function with(array $parameters)
+    {
+        $this->parameters = $parameters;
         return $this;
     }
 

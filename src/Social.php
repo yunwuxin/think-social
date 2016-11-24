@@ -22,7 +22,7 @@ class Social
     /**
      * 获取一个社会化渠道
      * @param string $name
-     * @return mixed
+     * @return Channel
      */
     public static function channel($name)
     {
@@ -42,10 +42,10 @@ class Social
     protected static function buildChannel($name)
     {
         $className = "\\yunwuxin\\social\\channel\\" . ucfirst($name);
-        if (class_exists($className)) {
-            $config = Config::get('social.' . $name);
 
-            return new $className($config);
+        $channels = Config::get('social.channels');
+        if (class_exists($className) && isset($channels[$name])) {
+            return new $className($channels[$name]);
         }
         throw new InvalidArgumentException("Channel [{$name}] not supported.");
     }
