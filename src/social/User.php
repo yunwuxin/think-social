@@ -28,18 +28,20 @@ class User implements \ArrayAccess
     {
         $fields = ['id', 'nickname', 'name', 'email', 'avatar'];
         $user   = [];
-        array_map(function ($field) use ($raw, $map, $user) {
+        array_map(function ($field) use ($raw, $map, &$user) {
+            $key = $field;
             if (isset($map[$field])) {
-                $field = $map[$field];
+                $key = $map[$field];
             }
-            $user[$field] = isset($raw[$field]) ? $raw[$field] : null;
+            $user[$field] = isset($raw[$key]) ? $raw[$key] : null;
         }, $fields);
         return new self($user, $raw);
     }
 
-    public function setToken($token)
+    public function setToken(AccessToken $token)
     {
         $this->user['token'] = $token;
+        return $this;
     }
 
     public function getId()
@@ -67,6 +69,9 @@ class User implements \ArrayAccess
         return $this->user['avatar'];
     }
 
+    /**
+     * @return AccessToken
+     */
     public function getToken()
     {
         return $this->user['token'];
