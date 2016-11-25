@@ -13,5 +13,5 @@ namespace yunwuxin\social;
 
 interface UserCheckerInterface
 {
-    public static function checkSocialUser(User $user, $channel, $autoLogin = true);
+    public static function checkSocialUser(User $user, $autoLogin = true);
 }

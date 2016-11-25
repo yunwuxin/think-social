@@ -102,7 +102,7 @@ abstract class Channel
         }
         $token = $this->getAccessToken($this->getCode());
         $user  = $this->makeUser($this->getUserByToken($token));
-        return $user->setToken($token);
+        return $user->setToken($token)->setChannel(strtolower(basename(str_replace('\\', '/', get_class($this)))));
     }
 
     /**

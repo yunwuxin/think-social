@@ -44,6 +44,12 @@ class User implements \ArrayAccess
         return $this;
     }
 
+    public function setChannel($channel)
+    {
+        $this->user['channel'] = $channel;
+        return $this;
+    }
+
     public function getId()
     {
         return $this->user['id'];
@@ -75,6 +81,11 @@ class User implements \ArrayAccess
     public function getToken()
     {
         return $this->user['token'];
+    }
+
+    public function getChannel()
+    {
+        return $this->user['channel'];
     }
 
     public function getRaw($name = null)
