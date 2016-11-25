@@ -16,10 +16,11 @@ use think\Route;
 function social_url($channel, $bind = false)
 {
     if ($bind) {
-        return \think\Url::build('SOCIAL_BIND', ['channel' => $channel]);
+        $route = 'SOCIAL_BIND';
     } else {
-        return \think\Url::build('SOCIAL', ['channel' => $channel]);
+        $route = 'SOCIAL';
     }
+    return \think\Url::build($route, ['channel' => $channel]);
 }
 
 Hook::add('app_init', function () {
