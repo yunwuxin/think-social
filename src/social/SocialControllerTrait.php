@@ -58,6 +58,7 @@ trait SocialControllerTrait
             }
         }
         Session::flash('social_user', $user);
+        Session::flash('social_channel', $channel);
         return redirect(Config::get('social.redirect')['register']);
     }
 
@@ -65,6 +66,7 @@ trait SocialControllerTrait
     {
         $user = Social::channel($channel)->user();
         Session::flash('social_user', $user);
+        Session::flash('social_channel', $channel);
         return redirect(Config::get('social.redirect')['bind']);
     }
 
