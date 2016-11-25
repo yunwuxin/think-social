@@ -16,9 +16,9 @@ use think\Route;
 function social_url($channel, $bind = false)
 {
     if ($bind) {
-        \think\Url::build('SOCIAL_BIND', ['channel' => $channel]);
+        return \think\Url::build('SOCIAL_BIND', ['channel' => $channel]);
     } else {
-        \think\Url::build('SOCIAL', ['channel' => $channel]);
+        return \think\Url::build('SOCIAL', ['channel' => $channel]);
     }
 }
 
