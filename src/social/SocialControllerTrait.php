@@ -53,7 +53,7 @@ trait SocialControllerTrait
 
         $checker = Config::get('social.user_checker');
         if ($checker && is_subclass_of($checker, UserCheckerInterface::class)) {
-            if ($checker::checkSocialUser($user)) {
+            if ($checker::checkSocialUser($user, $channel)) {
                 return redirect(Config::get('social.redirect')['complete']);
             }
         }
