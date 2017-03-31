@@ -13,8 +13,7 @@ return [
     'channels'     => [
         'qq'     => [
             'client_id'     => '',
-            'client_secret' => '',
-            'union'         => false //是否获取unionId
+            'client_secret' => ''
         ],
         'weibo'  => [
             'client_id'     => '',

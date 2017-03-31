@@ -26,14 +26,6 @@ class Qq extends Channel
 
     protected $withUnionId = false;
 
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        if (isset($config['union']) && $config['union']) {
-            $this->withUnionId = true;
-        }
-    }
-
     protected function getAuthUrl($state)
     {
         return $this->buildAuthUrlFromBase($this->baseUrl . '/oauth2.0/authorize', $state);
@@ -64,22 +56,20 @@ class Qq extends Channel
     protected function getUserByToken(AccessToken $token)
     {
         $url = $this->baseUrl . '/oauth2.0/me?access_token=' . $token->getToken();
-        $this->withUnionId && $url .= '&unionid=1';
+
         $response = $this->getHttpClient()->get($url);
         $me       = json_decode($this->removeCallback($response->getBody()->getContents()), true);
 
-        $openId  = $me['openid'];
-        $unionId = isset($me['unionid']) ? $me['unionid'] : '';
+        $openId = $me['openid'];
 
-        $queries          = [
+        $queries    = [
             'access_token'       => $token->getToken(),
             'openid'             => $openId,
             'oauth_consumer_key' => $this->clientId,
         ];
-        $response         = $this->getHttpClient()->get($this->baseUrl . '/user/get_user_info?' . http_build_query($queries));
-        $user             = json_decode($this->removeCallback($response->getBody()->getContents()), true);
-        $user['id']       = $openId;
-        $user['union_id'] = $unionId;
+        $response   = $this->getHttpClient()->get($this->baseUrl . '/user/get_user_info?' . http_build_query($queries));
+        $user       = json_decode($this->removeCallback($response->getBody()->getContents()), true);
+        $user['id'] = $openId;
 
         return $user;
     }
