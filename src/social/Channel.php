@@ -46,13 +46,12 @@ abstract class Channel
     public function __construct($config)
     {
 
-        if (!isset($config['client_id']) || !isset($config['client_secret']) || !isset($config['redirect'])) {
-            throw new \InvalidArgumentException("Config client_id,client_secret and redirect must be supply.");
+        if (!isset($config['client_id']) || !isset($config['client_secret'])) {
+            throw new \InvalidArgumentException("Config client_id,client_secret must be supply.");
         }
 
         $this->clientId     = $config['client_id'];
         $this->clientSecret = $config['client_secret'];
-        $this->redirectUrl  = $config['redirect'];
         $this->request      = Request::instance();
     }
 
@@ -76,7 +75,7 @@ abstract class Channel
      *
      * @return $this
      */
-    public function withRedirectUrl($redirectUrl)
+    public function setRedirectUrl($redirectUrl)
     {
         $this->redirectUrl = $redirectUrl;
         return $this;

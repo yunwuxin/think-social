@@ -14,26 +14,21 @@ return [
         'qq'     => [
             'client_id'     => '',
             'client_secret' => '',
-            'redirect'      => '',
             'union'         => false //是否获取unionId
         ],
         'weibo'  => [
             'client_id'     => '',
-            'client_secret' => '',
-            'redirect'      => ''
+            'client_secret' => ''
         ],
         'github' => [
             'client_id'     => '',
-            'client_secret' => '',
-            'redirect'      => ''
+            'client_secret' => ''
         ],
         'wechat' => [
             'client_id'     => '',
-            'client_secret' => '',
-            'redirect'      => ''
+            'client_secret' => ''
         ]
     ],
-    /* 以下为高级配置，不了解的请勿更改 */
     'route'        => false,
     'controller'   => \yunwuxin\social\Controller::class,
     'user_checker' => null,

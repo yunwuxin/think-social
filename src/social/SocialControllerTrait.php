@@ -22,14 +22,18 @@ trait SocialControllerTrait
     {
         $social = Social::channel($channel);
 
-        if ($bind) {
-            $route = 'SOCIAL_BIND_CALLBACK';
+        if (method_exists($this, 'getRedirectUrl')) {
+            $social->setRedirectUrl($this->getRedirectUrl($channel, $bind));
         } else {
-            $route = 'SOCIAL_CALLBACK';
-        }
-        $redirectUrl = Url::build($route, ['channel' => $channel], '', true);
+            if ($bind) {
+                $route = 'SOCIAL_BIND_CALLBACK';
+            } else {
+                $route = 'SOCIAL_CALLBACK';
+            }
+            $redirectUrl = Url::build($route, ['channel' => $channel], '', true);
 
-        $social->withRedirectUrl($redirectUrl);
+            $social->setRedirectUrl($redirectUrl);
+        }
 
         if (property_exists($this, 'scopes')) {
             $social->scopes($this->scopes);
@@ -58,7 +62,6 @@ trait SocialControllerTrait
             }
         }
         Session::flash('social_user', $user);
-        Session::flash('social_channel', $channel);
         return redirect(Config::get('social.redirect')['register']);
     }
 
@@ -66,7 +69,6 @@ trait SocialControllerTrait
     {
         $user = Social::channel($channel)->user();
         Session::flash('social_user', $user);
-        Session::flash('social_channel', $channel);
         return redirect(Config::get('social.redirect')['bind']);
     }
 
