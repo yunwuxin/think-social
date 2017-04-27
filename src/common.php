@@ -29,7 +29,7 @@ Hook::add('app_init', function () {
 
         Route::get([
             "SOCIAL_BIND_CALLBACK",
-            "{$route}/:channel/callback"
+            "{$route}/:channel/callback/bind"
         ], '\\yunwuxin\\social\\Controller@handleSocialCallbackForBind');
 
         Route::get([
@@ -42,7 +42,10 @@ Hook::add('app_init', function () {
             "{$route}/:channel/bind"
         ], '\\yunwuxin\\social\\Controller@redirectToSocialForBind');
 
-        Route::get(["SOCIAL", "{$route}/:channel"], '\\yunwuxin\\social\\Controller@redirectToSocial');
+        Route::get([
+            "SOCIAL",
+            "{$route}/:channel"
+        ], '\\yunwuxin\\social\\Controller@redirectToSocial');
 
     }
 });
