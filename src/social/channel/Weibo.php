@@ -31,7 +31,7 @@ class Weibo extends Channel
 
     protected function getTokenUrl()
     {
-        return $this->baseUrl . '/' . $this->version . '/oauth2/access_token';
+        return $this->baseUrl . '/oauth2/access_token';
     }
 
     protected function getTokenParams($code)
