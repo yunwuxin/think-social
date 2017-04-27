@@ -18,10 +18,8 @@ use yunwuxin\Social;
 trait SocialControllerTrait
 {
 
-    public function redirectToSocial($channel, $bind = false)
+    protected function setRedirectUrl(Channel $social, $channel, $bind = false)
     {
-        $social = Social::channel($channel);
-
         if (method_exists($this, 'getRedirectUrl')) {
             $social->setRedirectUrl($this->getRedirectUrl($channel, $bind));
         } else {
@@ -34,6 +32,13 @@ trait SocialControllerTrait
 
             $social->setRedirectUrl($redirectUrl);
         }
+    }
+
+    public function redirectToSocial($channel, $bind = false)
+    {
+        $social = Social::channel($channel);
+
+        $this->setRedirectUrl($social, $channel, $bind);
 
         if (property_exists($this, 'scopes')) {
             $social->scopes($this->scopes);
@@ -53,7 +58,9 @@ trait SocialControllerTrait
 
     public function handleSocialCallback($channel)
     {
-        $user = Social::channel($channel)->user();
+        $social = Social::channel($channel);
+        $this->setRedirectUrl($social, $channel);
+        $user = $social->user();
 
         $checker = Config::get('social.user_checker');
         if ($checker && is_subclass_of($checker, UserCheckerInterface::class)) {
@@ -67,7 +74,9 @@ trait SocialControllerTrait
 
     public function handleSocialCallbackForBind($channel)
     {
-        $user = Social::channel($channel)->user();
+        $social = Social::channel($channel);
+        $this->setRedirectUrl($social, $channel, true);
+        $user = $social->user();
         Session::flash('social_user', $user);
         return redirect(Config::get('social.redirect')['bind']);
     }
