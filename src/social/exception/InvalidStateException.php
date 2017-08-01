@@ -13,5 +13,8 @@ namespace yunwuxin\social\exception;
 
 class InvalidStateException extends Exception
 {
-
+    public function __construct()
+    {
+        parent::__construct("未授权访问");
+    }
 }
