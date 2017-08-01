@@ -11,7 +11,7 @@
 
 namespace yunwuxin\social\exception;
 
-class InvalidStateException extends Exception
+class Exception extends \Exception
 {
 
 }

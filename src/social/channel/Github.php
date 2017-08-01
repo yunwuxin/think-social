@@ -13,6 +13,7 @@ namespace yunwuxin\social\channel;
 
 use yunwuxin\social\AccessToken;
 use yunwuxin\social\Channel;
+use yunwuxin\social\exception\Exception;
 use yunwuxin\social\User;
 
 class Github extends Channel
@@ -27,6 +28,21 @@ class Github extends Channel
     protected function getTokenUrl()
     {
         return 'https://github.com/login/oauth/access_token';
+    }
+
+    protected function getAccessToken($code)
+    {
+        $response = $this->getHttpClient()->post($this->getTokenUrl(), [
+            'headers'     => ['Accept' => 'application/json'],
+            'form_params' => $this->getTokenParams($code),
+        ]);
+
+        $body = json_decode($response->getBody(), true);
+        if (isset($body['access_token'])) {
+            return AccessToken::make($body);
+        } else {
+            throw new Exception($body['error_description']);
+        }
     }
 
     protected function getUserByToken(AccessToken $token)

@@ -15,8 +15,8 @@ use think\helper\Str;
 use think\Request;
 use think\response\Redirect;
 use think\Session;
-use yunwuxin\exception\InvalidStateException;
-use yunwuxin\exception\UserCancelException;
+use yunwuxin\social\exception\InvalidStateException;
+use yunwuxin\social\exception\UserCancelException;
 
 abstract class Channel
 {
@@ -241,17 +241,7 @@ abstract class Channel
         ];
     }
 
-    protected function getAccessToken($code)
-    {
-        $response = $this->getHttpClient()->post($this->getTokenUrl(), [
-            'headers'     => ['Accept' => 'application/json'],
-            'form_params' => $this->getTokenParams($code),
-        ]);
-
-        $body = json_decode($response->getBody(), true);
-
-        return AccessToken::make($body);
-    }
+    abstract protected function getAccessToken($code);
 
     /**
      * 获取http客户端实例

@@ -13,6 +13,7 @@ namespace yunwuxin\social\channel;
 
 use yunwuxin\social\AccessToken;
 use yunwuxin\social\Channel;
+use yunwuxin\social\exception\Exception;
 use yunwuxin\social\User;
 
 class Wechat extends Channel
@@ -70,6 +71,11 @@ class Wechat extends Channel
             'query' => $this->getTokenParams($code),
         ]);
         $body     = json_decode($response->getBody()->getContents(), true);
+
+        if (isset($body['errcode'])) {
+            throw new Exception($body['errmsg'], $body['errcode']);
+        }
+
         return AccessToken::make($body);
     }
 

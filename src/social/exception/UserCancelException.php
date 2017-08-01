@@ -9,9 +9,9 @@
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
 
-namespace yunwuxin\exception;
+namespace yunwuxin\social\exception;
 
-class UserCancelException extends \InvalidArgumentException
+class UserCancelException extends Exception
 {
 
 }

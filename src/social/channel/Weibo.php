@@ -11,8 +11,10 @@
 
 namespace yunwuxin\social\channel;
 
+use GuzzleHttp\Exception\ClientException;
 use yunwuxin\social\AccessToken;
 use yunwuxin\social\Channel;
+use yunwuxin\social\exception\Exception;
 use yunwuxin\social\User;
 
 class Weibo extends Channel
@@ -37,6 +39,23 @@ class Weibo extends Channel
     protected function getTokenParams($code)
     {
         return parent::getTokenParams($code) + ['grant_type' => 'authorization_code'];
+    }
+
+    protected function getAccessToken($code)
+    {
+        try {
+            $response = $this->getHttpClient()->post($this->getTokenUrl(), [
+                'headers'     => ['Accept' => 'application/json'],
+                'form_params' => $this->getTokenParams($code),
+            ]);
+
+            $body = json_decode($response->getBody(), true);
+
+            return AccessToken::make($body);
+        } catch (ClientException $e) {
+            $body = json_decode($e->getResponse()->getBody(), true);
+            throw new Exception($body['error'], $body['error_code']);
+        }
     }
 
     protected function getUserByToken(AccessToken $token)

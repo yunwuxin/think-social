@@ -13,6 +13,7 @@ namespace yunwuxin\social\channel;
 
 use yunwuxin\social\AccessToken;
 use yunwuxin\social\Channel;
+use yunwuxin\social\exception\Exception;
 use yunwuxin\social\User;
 
 class Qq extends Channel
@@ -23,8 +24,6 @@ class Qq extends Channel
      * @var string
      */
     protected $baseUrl = "https://graph.qq.com";
-
-    protected $withUnionId = false;
 
     protected function getAuthUrl($state)
     {
@@ -50,7 +49,13 @@ class Qq extends Channel
         $content = $response->getBody()->getContents();
 
         parse_str($content, $token);
-        return AccessToken::make($token);
+
+        if (isset($token['access_token'])) {
+            return AccessToken::make($token);
+        } else {
+            $result = json_decode($this->removeCallback($content), true);
+            throw new Exception($result['error_description'], $result['error']);
+        }
     }
 
     protected function getUserByToken(AccessToken $token)
