@@ -16,6 +16,7 @@ use think\Request;
 use think\response\Redirect;
 use think\Session;
 use yunwuxin\exception\InvalidStateException;
+use yunwuxin\exception\UserCancelException;
 
 abstract class Channel
 {
@@ -223,7 +224,11 @@ abstract class Channel
      */
     protected function getCode()
     {
-        return $this->request->param('code');
+        if ($this->request->has('code')) {
+            return $this->request->param('code');
+        }
+
+        throw new UserCancelException();
     }
 
     protected function getTokenParams($code)
