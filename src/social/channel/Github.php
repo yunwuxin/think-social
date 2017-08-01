@@ -17,7 +17,7 @@ use yunwuxin\social\User;
 
 class Github extends Channel
 {
-    protected $scopes = ['user:email'];
+    protected $scopes = ['user'];
 
     protected function getAuthUrl($state)
     {
@@ -36,9 +36,7 @@ class Github extends Channel
             $userUrl, $this->getRequestOptions()
         );
         $user     = json_decode($response->getBody(), true);
-        if (in_array('user:email', $this->scopes)) {
-            $user['email'] = $this->getEmailByToken($token->getToken());
-        }
+
         return $user;
     }
 
@@ -53,27 +51,6 @@ class Github extends Channel
             'nickname' => 'login',
             'avatar'   => 'avatar_url'
         ]);
-    }
-
-    /**
-     * 获取email
-     * @param $token|null
-     */
-    protected function getEmailByToken($token)
-    {
-        $emailsUrl = 'https://api.github.com/user/emails?access_token=' . $token;
-        try {
-            $response = $this->getHttpClient()->get(
-                $emailsUrl, $this->getRequestOptions()
-            );
-        } catch (\Exception $e) {
-            return;
-        }
-        foreach (json_decode($response->getBody(), true) as $email) {
-            if ($email['primary'] && $email['verified']) {
-                return $email['email'];
-            }
-        }
     }
 
     /**
