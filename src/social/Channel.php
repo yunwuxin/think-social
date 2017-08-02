@@ -106,7 +106,7 @@ abstract class Channel
 
     /**
      * 获取第三方平台登录成功后的用户
-     * @return $this
+     * @return User
      * @throws InvalidStateException
      */
     public function user()
