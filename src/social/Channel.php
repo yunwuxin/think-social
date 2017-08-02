@@ -20,9 +20,6 @@ use yunwuxin\social\exception\UserCancelException;
 
 abstract class Channel
 {
-    /** @var  Request */
-    protected $request;
-
     protected $stateless = false;
 
     /** @var  Client Http 客户端 */
@@ -53,7 +50,6 @@ abstract class Channel
 
         $this->clientId     = $config['client_id'];
         $this->clientSecret = $config['client_secret'];
-        $this->request      = Request::instance();
     }
 
     /**
@@ -93,16 +89,33 @@ abstract class Channel
     }
 
     /**
-     * 获取第三方平台登录成功后的用户
+     * 设置token
+     * @param AccessToken $accessToken
+     * @return $this
      */
-    public function user()
+    public function setAccessToken(AccessToken $accessToken)
     {
-        if ($this->hasInvalidState()) {
-            throw new InvalidStateException;
+        $this->accessToken = $accessToken;
+        return $this;
+    }
+
+    /**
+     * 获取第三方平台登录成功后的用户
+     * @param Request $request
+     * @return $this
+     * @throws InvalidStateException
+     */
+    public function user(Request $request)
+    {
+        if (!$this->accessToken) {
+            if ($this->hasInvalidState($request)) {
+                throw new InvalidStateException;
+            }
+            $this->accessToken = $this->getAccessToken($this->getCode($request));
         }
-        $token = $this->getAccessToken($this->getCode());
-        $user  = $this->makeUser($this->getUserByToken($token));
-        return $user->setToken($token)->setChannel(strtolower(basename(str_replace('\\', '/', get_class($this)))));
+
+        $user = $this->makeUser($this->getUserByToken($this->accessToken));
+        return $user->setToken($this->accessToken)->setChannel(strtolower(basename(str_replace('\\', '/', get_class($this)))));
     }
 
     /**
@@ -159,13 +172,13 @@ abstract class Channel
         return Str::random(40);
     }
 
-    protected function hasInvalidState()
+    protected function hasInvalidState(Request $request)
     {
         if ($this->isStateless()) {
             return false;
         }
         $state = Session::pull('state');
-        return !(strlen($state) > 0 && $this->request->param('state') === $state);
+        return !(strlen($state) > 0 && $request->param('state') === $state);
     }
 
     abstract protected function getAuthUrl($state);
@@ -221,11 +234,14 @@ abstract class Channel
 
     /**
      * 获取返回的code
+     * @param Request $request
+     * @return mixed
+     * @throws UserCancelException
      */
-    protected function getCode()
+    protected function getCode(Request $request)
     {
-        if ($this->request->has('code')) {
-            return $this->request->param('code');
+        if ($request->has('code')) {
+            return $request->param('code');
         }
 
         throw new UserCancelException();

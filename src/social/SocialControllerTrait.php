@@ -11,6 +11,7 @@
 namespace yunwuxin\social;
 
 use think\Config;
+use think\Request;
 use think\Session;
 use think\Url;
 use yunwuxin\Social;
@@ -60,7 +61,7 @@ trait SocialControllerTrait
     {
         $social = Social::channel($channel);
         $this->setRedirectUrl($social, $channel);
-        $user = $social->user();
+        $user = $social->user(Request::instance());
 
         $checker = Config::get('social.user_checker');
         if ($checker && is_subclass_of($checker, UserCheckerInterface::class)) {
@@ -76,7 +77,7 @@ trait SocialControllerTrait
     {
         $social = Social::channel($channel);
         $this->setRedirectUrl($social, $channel, true);
-        $user = $social->user();
+        $user = $social->user(Request::instance());
         Session::flash('social_user', $user);
         return redirect(Config::get('social.redirect')['bind']);
     }
