@@ -10,6 +10,8 @@
 // +----------------------------------------------------------------------
 namespace yunwuxin\social;
 
+use function call_user_func;
+use Closure;
 use GuzzleHttp\Client;
 use think\helper\Str;
 use think\Request;
@@ -20,6 +22,9 @@ use yunwuxin\social\exception\UserCancelException;
 
 abstract class Channel
 {
+    static protected $codeResolver;
+    static protected $stateResolver;
+
     protected $stateless = false;
 
     /** @var  Client Http 客户端 */
@@ -101,17 +106,16 @@ abstract class Channel
 
     /**
      * 获取第三方平台登录成功后的用户
-     * @param Request $request
      * @return $this
      * @throws InvalidStateException
      */
-    public function user(Request $request)
+    public function user()
     {
         if (!$this->accessToken) {
-            if ($this->hasInvalidState($request)) {
+            if ($this->hasInvalidState()) {
                 throw new InvalidStateException;
             }
-            $this->accessToken = $this->getAccessToken($this->getCode($request));
+            $this->accessToken = $this->getAccessToken(static::resolveCode());
         }
 
         $user = $this->makeUser($this->getUserByToken($this->accessToken));
@@ -172,13 +176,45 @@ abstract class Channel
         return Str::random(40);
     }
 
-    protected function hasInvalidState(Request $request)
+    public static function resolveCode()
+    {
+        if (isset(static::$codeResolver)) {
+            return call_user_func(static::$codeResolver);
+        }
+
+        $request = Request::instance();
+        if ($request->has('code')) {
+            return $request->param('code');
+        }
+
+        throw new UserCancelException();
+    }
+
+    public static function codeResolver(Closure $resolver)
+    {
+        static::$codeResolver = $resolver;
+    }
+
+    public static function stateResolver(Closure $resolver)
+    {
+        static::$stateResolver = $resolver;
+    }
+
+    public static function resolveState()
+    {
+        if (isset(static::$stateResolver)) {
+            return call_user_func(static::$stateResolver);
+        }
+        return Request::instance()->param('state');
+    }
+
+    protected function hasInvalidState()
     {
         if ($this->isStateless()) {
             return false;
         }
         $state = Session::pull('state');
-        return !(strlen($state) > 0 && $request->param('state') === $state);
+        return !(strlen($state) > 0 && static::resolveState() === $state);
     }
 
     abstract protected function getAuthUrl($state);
@@ -230,21 +266,6 @@ abstract class Channel
     protected function buildAuthUrlFromBase($url, $state)
     {
         return $url . '?' . http_build_query($this->getAuthParams($state), '', '&', $this->encodingType);
-    }
-
-    /**
-     * 获取返回的code
-     * @param Request $request
-     * @return mixed
-     * @throws UserCancelException
-     */
-    protected function getCode(Request $request)
-    {
-        if ($request->has('code')) {
-            return $request->param('code');
-        }
-
-        throw new UserCancelException();
     }
 
     protected function getTokenParams($code)
