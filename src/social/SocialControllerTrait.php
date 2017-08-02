@@ -61,7 +61,7 @@ trait SocialControllerTrait
     {
         $social = Social::channel($channel);
         $this->setRedirectUrl($social, $channel);
-        $user = $social->user(Request::instance());
+        $user = $social->user();
 
         $checker = Config::get('social.user_checker');
         if ($checker && is_subclass_of($checker, UserCheckerInterface::class)) {
@@ -77,7 +77,7 @@ trait SocialControllerTrait
     {
         $social = Social::channel($channel);
         $this->setRedirectUrl($social, $channel, true);
-        $user = $social->user(Request::instance());
+        $user = $social->user();
         Session::flash('social_user', $user);
         return redirect(Config::get('social.redirect')['bind']);
     }
