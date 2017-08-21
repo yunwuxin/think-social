@@ -27,25 +27,27 @@ Hook::add('app_init', function () {
     //注册路由
     if ($route = Config::get('social.route')) {
 
+        $controller = Config::get('social.controller');
+
         Route::get([
             "SOCIAL_BIND_CALLBACK",
             "{$route}/:channel/callback/bind"
-        ], '\\yunwuxin\\social\\Controller@handleSocialCallbackForBind');
+        ], $controller . '@handleSocialCallbackForBind');
 
         Route::get([
             "SOCIAL_CALLBACK",
             "{$route}/:channel/callback"
-        ], '\\yunwuxin\\social\\Controller@handleSocialCallback');
+        ], $controller . '@handleSocialCallback');
 
         Route::get([
             "SOCIAL_BIND",
             "{$route}/:channel/bind"
-        ], '\\yunwuxin\\social\\Controller@redirectToSocialForBind');
+        ], $controller . '@redirectToSocialForBind');
 
         Route::get([
             "SOCIAL",
             "{$route}/:channel"
-        ], '\\yunwuxin\\social\\Controller@redirectToSocial');
+        ], $controller . '@redirectToSocial');
 
     }
 });

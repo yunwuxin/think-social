@@ -18,6 +18,10 @@ use yunwuxin\Social;
 
 trait SocialControllerTrait
 {
+    protected function buildChannel($channel)
+    {
+        return Social::channel($channel);
+    }
 
     protected function setRedirectUrl(Channel $social, $channel, $bind = false)
     {
@@ -37,7 +41,7 @@ trait SocialControllerTrait
 
     public function redirectToSocial($channel, $bind = false)
     {
-        $social = Social::channel($channel);
+        $social = $this->buildChannel($channel);
 
         $this->setRedirectUrl($social, $channel, $bind);
 
@@ -59,7 +63,7 @@ trait SocialControllerTrait
 
     public function handleSocialCallback($channel)
     {
-        $social = Social::channel($channel);
+        $social = $this->buildChannel($channel);
         $this->setRedirectUrl($social, $channel);
         $user = $social->user();
 
@@ -75,7 +79,7 @@ trait SocialControllerTrait
 
     public function handleSocialCallbackForBind($channel)
     {
-        $social = Social::channel($channel);
+        $social = $this->buildChannel($channel);
         $this->setRedirectUrl($social, $channel, true);
         $user = $social->user();
         Session::flash('social_user', $user);

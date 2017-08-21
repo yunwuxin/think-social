@@ -130,7 +130,7 @@ abstract class Channel
      */
     public function scopes(array $scopes)
     {
-        $this->scopes = array_unique(array_merge($this->scopes, $scopes));
+        $this->scopes = $scopes;
         return $this;
     }
 
