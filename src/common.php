@@ -9,9 +9,10 @@
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
 
-use think\Config;
-use think\Hook;
-use think\Route;
+use think\facade\Config;
+use think\facade\Hook;
+use think\facade\Route;
+use think\facade\Url;
 
 function social_url($channel, $bind = false)
 {
@@ -20,7 +21,7 @@ function social_url($channel, $bind = false)
     } else {
         $route = 'SOCIAL';
     }
-    return \think\Url::build($route, ['channel' => $channel]);
+    return Url::build($route, ['channel' => $channel]);
 }
 
 Hook::add('app_init', function () {
@@ -31,22 +32,22 @@ Hook::add('app_init', function () {
 
         Route::get([
             "SOCIAL_BIND_CALLBACK",
-            "{$route}/:channel/callback/bind"
+            "{$route}/:channel/callback/bind",
         ], $controller . '@handleSocialCallbackForBind');
 
         Route::get([
             "SOCIAL_CALLBACK",
-            "{$route}/:channel/callback"
+            "{$route}/:channel/callback",
         ], $controller . '@handleSocialCallback');
 
         Route::get([
             "SOCIAL_BIND",
-            "{$route}/:channel/bind"
+            "{$route}/:channel/bind",
         ], $controller . '@redirectToSocialForBind');
 
         Route::get([
             "SOCIAL",
-            "{$route}/:channel"
+            "{$route}/:channel",
         ], $controller . '@redirectToSocial');
 
     }

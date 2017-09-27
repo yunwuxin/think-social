@@ -11,7 +11,7 @@
 namespace yunwuxin;
 
 use InvalidArgumentException;
-use think\Config;
+use think\facade\Config;
 use yunwuxin\social\Channel;
 
 class Social

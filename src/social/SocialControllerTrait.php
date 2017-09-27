@@ -10,10 +10,9 @@
 // +----------------------------------------------------------------------
 namespace yunwuxin\social;
 
-use think\Config;
-use think\Request;
-use think\Session;
-use think\Url;
+use think\facade\Config;
+use think\facade\Session;
+use think\facade\Url;
 use yunwuxin\Social;
 
 trait SocialControllerTrait

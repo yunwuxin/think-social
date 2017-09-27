@@ -10,20 +10,19 @@
 // +----------------------------------------------------------------------
 namespace yunwuxin\social;
 
-use function call_user_func;
 use Closure;
 use GuzzleHttp\Client;
+use think\facade\Request;
+use think\facade\Session;
 use think\helper\Str;
-use think\Request;
 use think\response\Redirect;
-use think\Session;
 use yunwuxin\social\exception\InvalidStateException;
 use yunwuxin\social\exception\UserCancelException;
 
 abstract class Channel
 {
-    static protected $codeResolver;
-    static protected $stateResolver;
+    protected static $codeResolver;
+    protected static $stateResolver;
 
     protected $stateless = false;
 
@@ -182,9 +181,8 @@ abstract class Channel
             return call_user_func(static::$codeResolver);
         }
 
-        $request = Request::instance();
-        if ($request->has('code')) {
-            return $request->param('code');
+        if (Request::has('code')) {
+            return Request::param('code');
         }
 
         throw new UserCancelException();
@@ -205,7 +203,7 @@ abstract class Channel
         if (isset(static::$stateResolver)) {
             return call_user_func(static::$stateResolver);
         }
-        return Request::instance()->param('state');
+        return Request::param('state');
     }
 
     protected function hasInvalidState()
