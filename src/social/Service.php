@@ -19,23 +19,25 @@ class Service extends \think\Service
         });
 
         //注册路由
-        if ($route = $this->app->config->get('social.route')) {
+        if ($group = $this->app->config->get('social.route')) {
 
-            $this->registerRoutes(function (Route $route) {
+            $this->registerRoutes(function (Route $route) use ($group) {
 
                 $controller = $this->app->config->get('social.controller');
 
-                $route->get("{$route}/:channel/callback/bind", $controller . '@handleSocialCallbackForBind')
-                    ->name('SOCIAL_BIND_CALLBACK');
+                $route->group($group, function () use ($route) {
+                    $route->get(":channel/callback/bind", '@handleSocialCallbackForBind')
+                        ->name('SOCIAL_BIND_CALLBACK');
 
-                $route->get("{$route}/:channel/callback", $controller . '@handleSocialCallback')
-                    ->name('SOCIAL_CALLBACK');
+                    $route->get(":channel/callback", '@handleSocialCallback')
+                        ->name('SOCIAL_CALLBACK');
 
-                $route->get("{$route}/:channel/bind", $controller . '@redirectToSocialForBind')
-                    ->name('SOCIAL_BIND');
+                    $route->get(":channel/bind", '@redirectToSocialForBind')
+                        ->name('SOCIAL_BIND');
 
-                $route->get("{$route}/:channel", $controller . '@redirectToSocial')
-                    ->name('SOCIAL');
+                    $route->get(":channel", '@redirectToSocial')
+                        ->name('SOCIAL');
+                })->prefix($controller);
             });
         }
     }
