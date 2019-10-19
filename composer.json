@@ -24,7 +24,7 @@
     "extra": {
         "think": {
             "services": [
-                "think\\social\\Service"
+                "yunwuxin\\social\\Service"
             ],
             "config": {
                 "social": "src/config.php"
