@@ -9,11 +9,6 @@
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
 
-use think\facade\Config;
-use think\facade\Hook;
-use think\facade\Route;
-use think\facade\Url;
-
 function social_url($channel, $bind = false)
 {
     if ($bind) {
@@ -21,34 +16,5 @@ function social_url($channel, $bind = false)
     } else {
         $route = 'SOCIAL';
     }
-    return Url::build($route, ['channel' => $channel]);
+    return url($route, ['channel' => $channel]);
 }
-
-Hook::add('app_init', function () {
-    //注册路由
-    if ($route = Config::get('social.route')) {
-
-        $controller = Config::get('social.controller');
-
-        Route::get([
-            "SOCIAL_BIND_CALLBACK",
-            "{$route}/:channel/callback/bind",
-        ], $controller . '@handleSocialCallbackForBind');
-
-        Route::get([
-            "SOCIAL_CALLBACK",
-            "{$route}/:channel/callback",
-        ], $controller . '@handleSocialCallback');
-
-        Route::get([
-            "SOCIAL_BIND",
-            "{$route}/:channel/bind",
-        ], $controller . '@redirectToSocialForBind');
-
-        Route::get([
-            "SOCIAL",
-            "{$route}/:channel",
-        ], $controller . '@redirectToSocial');
-
-    }
-});

@@ -12,15 +12,16 @@ namespace yunwuxin\social;
 
 use Closure;
 use GuzzleHttp\Client;
-use think\facade\Request;
-use think\facade\Session;
+use InvalidArgumentException;
 use think\helper\Str;
-use think\response\Redirect;
+use think\Session;
 use yunwuxin\social\exception\InvalidStateException;
 use yunwuxin\social\exception\UserCancelException;
 
 abstract class Channel
 {
+    const STATE_NAME = 'social_state';
+
     protected static $codeResolver;
     protected static $stateResolver;
 
@@ -45,15 +46,18 @@ abstract class Channel
 
     protected $accessToken = null;
 
-    public function __construct($config)
-    {
+    /** @var Session */
+    protected $session;
 
+    public function __construct(Session $session, $config)
+    {
         if (!isset($config['client_id']) || !isset($config['client_secret'])) {
-            throw new \InvalidArgumentException("Config client_id,client_secret must be supply.");
+            throw new InvalidArgumentException("Config client_id,client_secret must be supply.");
         }
 
         $this->clientId     = $config['client_id'];
         $this->clientSecret = $config['client_secret'];
+        $this->session      = $session;
     }
 
     /**
@@ -63,10 +67,10 @@ abstract class Channel
     {
         $state = null;
         if ($this->usesState()) {
-            Session::set('state', $state = $this->getState());
+            $this->session->set(self::STATE_NAME, $state = $this->getState());
         }
 
-        return new Redirect($this->getAuthUrl($state));
+        return redirect($this->getAuthUrl($state));
     }
 
     /**
@@ -114,17 +118,17 @@ abstract class Channel
             if ($this->hasInvalidState()) {
                 throw new InvalidStateException;
             }
-            $this->accessToken = $this->getAccessToken(static::resolveCode());
+            $this->accessToken = $this->getAccessToken($this->resolveCode());
         }
 
         $user = $this->makeUser($this->getUserByToken($this->accessToken));
-        return $user->setToken($this->accessToken)->setChannel(strtolower(basename(str_replace('\\', '/', get_class($this)))));
+        return $user->setToken($this->accessToken)->setChannel(strtolower(class_basename($this)));
     }
 
     /**
      * 设置scope
      *
-     * @param  array $scopes
+     * @param array $scopes
      * @return $this
      */
     public function scopes(array $scopes)
@@ -175,16 +179,14 @@ abstract class Channel
         return Str::random(40);
     }
 
-    public static function resolveCode()
+    protected function resolveCode()
     {
         if (isset(static::$codeResolver)) {
-            return call_user_func(static::$codeResolver);
+            $code = call_user_func(static::$codeResolver);
         }
-
-        if (Request::has('code')) {
-            return Request::param('code');
+        if (!empty($code)) {
+            return $code;
         }
-
         throw new UserCancelException();
     }
 
@@ -198,12 +200,11 @@ abstract class Channel
         static::$stateResolver = $resolver;
     }
 
-    public static function resolveState()
+    protected function resolveState()
     {
         if (isset(static::$stateResolver)) {
             return call_user_func(static::$stateResolver);
         }
-        return Request::param('state');
     }
 
     protected function hasInvalidState()
@@ -211,8 +212,8 @@ abstract class Channel
         if ($this->isStateless()) {
             return false;
         }
-        $state = Session::pull('state');
-        return !(strlen($state) > 0 && static::resolveState() === $state);
+        $state = $this->session->pull(self::STATE_NAME);
+        return !(strlen($state) > 0 && $this->resolveState() === $state);
     }
 
     abstract protected function getAuthUrl($state);

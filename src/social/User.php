@@ -11,7 +11,9 @@
 
 namespace yunwuxin\social;
 
-class User implements \ArrayAccess
+use ArrayAccess;
+
+class User implements ArrayAccess
 {
 
     protected $raw;

@@ -1,4 +1,4 @@
-# ThinkPHP5 社会化登录组件
+# ThinkPHP6 社会化登录组件
 
 ## 安装
 
@@ -8,7 +8,6 @@ composer require yunwuxin/think-social
 
 ## 配置
 
-配置文件位于`application/extra/social`  
 目前支持4个平台的：`qq`,`weibo`,`github`,`wechat`
 
 ### 配置示例

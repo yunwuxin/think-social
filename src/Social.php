@@ -10,44 +10,34 @@
 // +----------------------------------------------------------------------
 namespace yunwuxin;
 
-use InvalidArgumentException;
-use think\facade\Config;
+use think\Manager;
 use yunwuxin\social\Channel;
 
-class Social
+class Social extends Manager
 {
-    /** @var Channel[] */
-    protected static $channels = [];
+    protected $namespace = '\\yunwuxin\\social\\channel\\';
 
     /**
      * 获取一个社会化渠道
      * @param string $name
      * @return Channel
      */
-    public static function channel($name)
+    public function channel($name)
     {
-        $name = strtolower($name);
-        if (!isset(self::$channels[$name])) {
-            self::$channels[$name] = self::buildChannel($name);
-        }
+        return $this->driver($name);
+    }
 
-        return self::$channels[$name];
+    protected function resolveConfig(string $name)
+    {
+        return $this->app->config->get("social.channels.{$name}", []);
     }
 
     /**
-     * 创建渠道
-     * @param string $name
-     * @return Channel
+     * 默认驱动
+     * @return string|null
      */
-    protected static function buildChannel($name)
+    public function getDefaultDriver()
     {
-        $className = "\\yunwuxin\\social\\channel\\" . ucfirst($name);
-
-        $channels = Config::get('social.channels');
-        if (class_exists($className) && isset($channels[$name])) {
-            return new $className($channels[$name]);
-        }
-        throw new InvalidArgumentException("Channel [{$name}] not supported.");
+        return null;
     }
-
 }
