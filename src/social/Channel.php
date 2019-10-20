@@ -80,7 +80,7 @@ abstract class Channel
      *
      * @return $this
      */
-    public function setRedirectUrl($redirectUrl)
+    public function setRedirectUrl(string $redirectUrl)
     {
         $this->redirectUrl = $redirectUrl;
         return $this;
@@ -91,7 +91,7 @@ abstract class Channel
      *
      * @return string
      */
-    public function getRedirectUrl()
+    public function getRedirectUrl(): string
     {
         return $this->redirectUrl;
     }
