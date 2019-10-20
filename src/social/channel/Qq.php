@@ -60,7 +60,7 @@ class Qq extends Channel
 
     protected function getUserByToken(AccessToken $token)
     {
-        $url = $this->baseUrl . '/oauth2.0/me?access_token=' . $token->getToken();
+        $url = $this->baseUrl . '/oauth2.0/me?access_token=' . $token;
 
         $response = $this->getHttpClient()->get($url);
         $me       = json_decode($this->removeCallback($response->getBody()->getContents()), true);
@@ -68,7 +68,7 @@ class Qq extends Channel
         $openId = $me['openid'];
 
         $queries    = [
-            'access_token'       => $token->getToken(),
+            'access_token'       => $token,
             'openid'             => $openId,
             'oauth_consumer_key' => $this->clientId,
         ];

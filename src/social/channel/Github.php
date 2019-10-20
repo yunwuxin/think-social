@@ -45,7 +45,7 @@ class Github extends Channel
 
     protected function getUserByToken(AccessToken $token)
     {
-        $userUrl  = 'https://api.github.com/user?access_token=' . $token->getToken();
+        $userUrl  = 'https://api.github.com/user?access_token=' . $token;
         $response = $this->getHttpClient()->get(
             $userUrl, $this->getRequestOptions()
         );

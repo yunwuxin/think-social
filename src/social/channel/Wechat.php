@@ -91,7 +91,7 @@ class Wechat extends Channel
 
         $response = $this->getHttpClient()->get($this->baseUrl . '/userinfo', [
             'query' => [
-                'access_token' => $token->getToken(),
+                'access_token' => $token->getValue(),
                 'openid'       => $token->getRaw('openid'),
                 'lang'         => 'zh_CN',
             ],

@@ -63,7 +63,7 @@ class Weibo extends Channel
         $response = $this->getHttpClient()->get($this->baseUrl . '/' . $this->version . '/users/show.json', [
             'query'   => [
                 'uid'          => $token->getRaw('uid'),
-                'access_token' => $token->getToken(),
+                'access_token' => $token->getValue(),
             ],
             'headers' => [
                 'Accept' => 'application/json',
@@ -81,7 +81,7 @@ class Weibo extends Channel
     {
         return User::make($user, [
             'nickname' => 'screen_name',
-            'avatar'   => 'avatar_large'
+            'avatar'   => 'avatar_large',
         ]);
     }
 }
