@@ -27,6 +27,11 @@ class Social extends Manager
         return $this->driver($name);
     }
 
+    protected function resolveType(string $name)
+    {
+        return $this->app->config->get("social.channels.{$name}.type") ?? $name;
+    }
+
     protected function resolveConfig(string $name)
     {
         return $this->app->config->get("social.channels.{$name}", []);
