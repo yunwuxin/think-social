@@ -22,7 +22,7 @@ class AccessToken
         $this->token = $token;
     }
 
-    public function getToken()
+    public function getValue()
     {
         return $this->token;
     }
@@ -34,6 +34,11 @@ class AccessToken
         } else {
             return isset($this->raw[$name]) ? $this->raw[$name] : $default;
         }
+    }
+
+    public function __toString()
+    {
+        return $this->token;
     }
 
     public static function make($raw, $tokenName = 'access_token')
