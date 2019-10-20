@@ -8,16 +8,6 @@ class Service extends \think\Service
 {
     public function boot()
     {
-        Channel::codeResolver(function () {
-            if ($this->app->request->has('code')) {
-                return $this->app->request->param('code');
-            }
-        });
-
-        Channel::stateResolver(function () {
-            return $this->app->request->param('state');
-        });
-
         //注册路由
         if ($group = $this->app->config->get('social.route')) {
 

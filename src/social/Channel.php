@@ -10,20 +10,17 @@
 // +----------------------------------------------------------------------
 namespace yunwuxin\social;
 
-use Closure;
 use GuzzleHttp\Client;
 use InvalidArgumentException;
 use think\helper\Str;
+use think\Request;
 use think\Session;
 use yunwuxin\social\exception\InvalidStateException;
-use yunwuxin\social\exception\UserCancelException;
 
 abstract class Channel
 {
     const STATE_NAME = 'social_state';
-
-    protected static $codeResolver;
-    protected static $stateResolver;
+    const USER_NAME  = 'social_user';
 
     protected $stateless = false;
 
@@ -44,12 +41,16 @@ abstract class Channel
     /** @var array 自定义参数 */
     protected $parameters = [];
 
-    protected $accessToken = null;
-
     /** @var Session */
     protected $session;
 
-    public function __construct(Session $session, $config)
+    /** @var Request */
+    protected $request;
+
+    /** @var User */
+    protected $user;
+
+    public function __construct(Request $request, Session $session, $config)
     {
         if (!isset($config['client_id']) || !isset($config['client_secret'])) {
             throw new InvalidArgumentException("Config client_id,client_secret must be supply.");
@@ -58,6 +59,7 @@ abstract class Channel
         $this->clientId     = $config['client_id'];
         $this->clientSecret = $config['client_secret'];
         $this->session      = $session;
+        $this->request      = $request;
     }
 
     /**
@@ -86,43 +88,49 @@ abstract class Channel
         return $this;
     }
 
-    /**
-     * Return the redirect url.
-     *
-     * @return string
-     */
-    public function getRedirectUrl(): string
+    protected function getCode()
     {
-        return $this->redirectUrl;
-    }
-
-    /**
-     * 设置token
-     * @param AccessToken $accessToken
-     * @return $this
-     */
-    public function setAccessToken(AccessToken $accessToken)
-    {
-        $this->accessToken = $accessToken;
-        return $this;
+        return $this->request->param('code');
     }
 
     /**
      * 获取第三方平台登录成功后的用户
      * @return User
-     * @throws InvalidStateException
      */
     public function user()
     {
-        if (!$this->accessToken) {
+        if (!$this->user) {
             if ($this->hasInvalidState()) {
                 throw new InvalidStateException;
             }
-            $this->accessToken = $this->getAccessToken($this->resolveCode());
-        }
 
-        $user = $this->makeUser($this->getUserByToken($this->accessToken));
-        return $user->setToken($this->accessToken)->setChannel(strtolower(class_basename($this)));
+            $accessToken = $this->getAccessToken($this->getCode());
+
+            $user = $this->getUserByToken($accessToken);
+
+            $this->user = $this->makeUser($user)
+                ->setToken($accessToken)
+                ->setChannel(strtolower(class_basename($this)));
+        }
+        return $this->user;
+    }
+
+    /**
+     * 闪存用户信息
+     */
+    public function flashUser()
+    {
+        $this->session->flash(self::USER_NAME, $this->user());
+        return $this;
+    }
+
+    /**
+     * 获取闪存的用户信息
+     * @return User
+     */
+    public function getFlashUser()
+    {
+        return $this->session->get(self::USER_NAME);
     }
 
     /**
@@ -179,41 +187,13 @@ abstract class Channel
         return Str::random(40);
     }
 
-    protected function resolveCode()
-    {
-        if (isset(static::$codeResolver)) {
-            $code = call_user_func(static::$codeResolver);
-        }
-        if (!empty($code)) {
-            return $code;
-        }
-        throw new UserCancelException();
-    }
-
-    public static function codeResolver(Closure $resolver)
-    {
-        static::$codeResolver = $resolver;
-    }
-
-    public static function stateResolver(Closure $resolver)
-    {
-        static::$stateResolver = $resolver;
-    }
-
-    protected function resolveState()
-    {
-        if (isset(static::$stateResolver)) {
-            return call_user_func(static::$stateResolver);
-        }
-    }
-
     protected function hasInvalidState()
     {
         if ($this->isStateless()) {
             return false;
         }
         $state = $this->session->pull(self::STATE_NAME);
-        return !(strlen($state) > 0 && $this->resolveState() === $state);
+        return !(strlen($state) > 0 && $this->request->param('state') === $state);
     }
 
     abstract protected function getAuthUrl($state);
