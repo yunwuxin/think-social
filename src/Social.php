@@ -57,7 +57,7 @@ class Social extends Manager
 
     public function setFlashUser(User $user)
     {
-        $this->app->session->flash(self::USER_NAME, $this->user());
+        $this->app->session->flash(self::USER_NAME, $user);
     }
 
     public function getFlashUser(): User
