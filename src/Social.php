@@ -49,8 +49,10 @@ class Social extends Manager
     public function checkUser(User $user, $autoLogin = true): bool
     {
         $checker = $this->app->config->get('social.user_checker');
-
-        return $this->app->invoke($checker, [$user, $autoLogin]);
+        if ($checker) {
+            return $this->app->invoke($checker, [$user, $autoLogin]);
+        }
+        return false;
     }
 
     public function setFlashUser(User $user)
