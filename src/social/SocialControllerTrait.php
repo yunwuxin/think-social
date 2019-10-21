@@ -53,28 +53,32 @@ trait SocialControllerTrait
         return $this->redirectToSocial($social, $channel, true);
     }
 
-    public function handleSocialCallback(Social $social, Config $config, Session $session, $channel)
+    protected function getUser(Social $social, $channel)
     {
         $social = $social->channel($channel);
         $this->setRedirectUrl($social, $channel);
-        $user = $social->user();
+        return $social->user();
+    }
 
-        /** @var UserCheckerInterface $checker */
-        $checker = $config->get('social.user_checker');
-        if ($checker && is_subclass_of($checker, UserCheckerInterface::class)) {
-            if ($checker::checkSocialUser($user)) {
-                return redirect($config->get('social.redirect.complete'))->restore();
-            }
+    public function handleSocialCallback(Social $social, Config $config, $channel)
+    {
+        $user = $this->getUser($social, $channel);
+
+        if ($social->checkUser($user)) {
+            return redirect($config->get('social.redirect.complete'))->restore();
         }
-        $social->flashUser();
+
+        $social->setFlashUser($user);
+
         return redirect($config->get('social.redirect.register'));
     }
 
     public function handleSocialCallbackForBind(Social $social, Config $config, $channel)
     {
-        $social = $social->channel($channel);
-        $this->setRedirectUrl($social, $channel, true);
-        $social->flashUser();
+        $user = $this->getUser($social, $channel);
+
+        $social->setFlashUser($user);
+
         return redirect($config->get('social.redirect.bind'));
     }
 

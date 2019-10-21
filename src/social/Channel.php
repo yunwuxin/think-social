@@ -20,7 +20,6 @@ use yunwuxin\social\exception\InvalidStateException;
 abstract class Channel
 {
     const STATE_NAME = 'social_state';
-    const USER_NAME  = 'social_user';
 
     protected $stateless = false;
 
@@ -113,24 +112,6 @@ abstract class Channel
                 ->setChannel(strtolower(class_basename($this)));
         }
         return $this->user;
-    }
-
-    /**
-     * 闪存用户信息
-     */
-    public function flashUser()
-    {
-        $this->session->flash(self::USER_NAME, $this->user());
-        return $this;
-    }
-
-    /**
-     * 获取闪存的用户信息
-     * @return User
-     */
-    public function getFlashUser()
-    {
-        return $this->session->get(self::USER_NAME);
     }
 
     /**

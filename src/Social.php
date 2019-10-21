@@ -12,9 +12,18 @@ namespace yunwuxin;
 
 use think\Manager;
 use yunwuxin\social\Channel;
+use yunwuxin\social\channel\Github;
+use yunwuxin\social\User;
 
+/**
+ * Class Social
+ * @package yunwuxin
+ * @mixin Github
+ */
 class Social extends Manager
 {
+    const USER_NAME = 'social_user';
+
     protected $namespace = '\\yunwuxin\\social\\channel\\';
 
     /**
@@ -35,6 +44,23 @@ class Social extends Manager
     protected function resolveConfig(string $name)
     {
         return $this->app->config->get("social.channels.{$name}", []);
+    }
+
+    public function checkUser(User $user, $autoLogin = true): bool
+    {
+        $checker = $this->app->config->get('social.user_checker');
+
+        return $this->app->invoke($checker, [$user, $autoLogin]);
+    }
+
+    public function setFlashUser(User $user)
+    {
+        $this->app->session->flash(self::USER_NAME, $this->user());
+    }
+
+    public function getFlashUser(): User
+    {
+        return $this->app->session->get(self::USER_NAME);
     }
 
     /**
