@@ -28,7 +28,7 @@ class User implements ArrayAccess
 
     public static function make($raw, $map)
     {
-        $fields = ['id', 'nickname', 'name', 'email', 'avatar'];
+        $fields = ['id', 'nickname', 'email', 'avatar'];
         $user   = [];
         array_map(function ($field) use ($raw, $map, &$user) {
             $key = $field;
@@ -60,11 +60,6 @@ class User implements ArrayAccess
     public function getNickname()
     {
         return $this->user['nickname'];
-    }
-
-    public function getName()
-    {
-        return $this->user['name'];
     }
 
     public function getEmail()

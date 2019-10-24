@@ -62,8 +62,8 @@ class Github extends Channel
     protected function makeUser(array $user)
     {
         return User::make($user, [
-            'nickname' => 'login',
-            'avatar'   => 'avatar_url'
+            'name'   => 'nickname',
+            'avatar' => 'avatar_url',
         ]);
     }
 
