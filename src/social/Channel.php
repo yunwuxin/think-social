@@ -14,13 +14,10 @@ use GuzzleHttp\Client;
 use InvalidArgumentException;
 use think\helper\Str;
 use think\Request;
-use think\Session;
 use yunwuxin\social\exception\InvalidStateException;
 
 abstract class Channel
 {
-    const STATE_NAME = 'social_state';
-
     protected $stateless = false;
 
     /** @var  Client Http 客户端 */
@@ -40,16 +37,10 @@ abstract class Channel
     /** @var array 自定义参数 */
     protected $parameters = [];
 
-    /** @var Session */
-    protected $session;
-
     /** @var Request */
     protected $request;
 
-    /** @var User */
-    protected $user;
-
-    public function __construct(Request $request, Session $session, $config)
+    public function __construct(Request $request, $config)
     {
         if (!isset($config['client_id']) || !isset($config['client_secret'])) {
             throw new InvalidArgumentException("Config client_id,client_secret must be supply.");
@@ -57,7 +48,6 @@ abstract class Channel
 
         $this->clientId     = $config['client_id'];
         $this->clientSecret = $config['client_secret'];
-        $this->session      = $session;
         $this->request      = $request;
     }
 
@@ -66,12 +56,7 @@ abstract class Channel
      */
     public function redirect()
     {
-        $state = null;
-        if ($this->usesState()) {
-            $this->session->set(self::STATE_NAME, $state = $this->getState());
-        }
-
-        return redirect($this->getAuthUrl($state));
+        return redirect($this->getAuthUrl());
     }
 
     /**
@@ -98,20 +83,13 @@ abstract class Channel
      */
     public function user()
     {
-        if (!$this->user) {
-            if ($this->hasInvalidState()) {
-                throw new InvalidStateException;
-            }
+        $accessToken = $this->getAccessToken($this->getCode());
 
-            $accessToken = $this->getAccessToken($this->getCode());
+        $user = $this->getUserByToken($accessToken);
 
-            $user = $this->getUserByToken($accessToken);
-
-            $this->user = $this->makeUser($user)
-                ->setToken($accessToken)
-                ->setChannel(strtolower(class_basename($this)));
-        }
-        return $this->user;
+        return $this->makeUser($user)
+                    ->setToken($accessToken)
+                    ->setChannel(strtolower(class_basename($this)));
     }
 
     /**
@@ -147,37 +125,12 @@ abstract class Channel
         return $this->scopes;
     }
 
-    public function stateless()
-    {
-        $this->stateless = true;
-        return $this;
-    }
-
-    protected function usesState()
-    {
-        return !$this->stateless;
-    }
-
-    protected function isStateless()
+    public function isStateless()
     {
         return $this->stateless;
     }
 
-    protected function getState()
-    {
-        return Str::random(40);
-    }
-
-    protected function hasInvalidState()
-    {
-        if ($this->isStateless()) {
-            return false;
-        }
-        $state = $this->session->pull(self::STATE_NAME);
-        return !(strlen($state) > 0 && $this->request->param('state') === $state);
-    }
-
-    abstract protected function getAuthUrl($state);
+    abstract protected function getAuthUrl();
 
     abstract protected function getTokenUrl();
 
@@ -190,25 +143,19 @@ abstract class Channel
      */
     abstract protected function makeUser(array $user);
 
-    protected function getAuthParams($state)
+    protected function getAuthParams()
     {
-        $fields = array_merge([
+        return array_merge([
             'client_id'     => $this->clientId,
             'redirect_uri'  => $this->redirectUrl,
             'scope'         => $this->formatScopes($this->scopes, $this->scopeSeparator),
             'response_type' => 'code',
         ], $this->parameters);
-
-        if ($this->usesState()) {
-            $fields['state'] = $state;
-        }
-
-        return $fields;
     }
 
     /**
      * 格式化scope
-     * @param array  $scopes
+     * @param array $scopes
      * @param string $scopeSeparator
      * @return string
      */
@@ -220,12 +167,11 @@ abstract class Channel
     /**
      * 创建认证跳转url
      * @param $url
-     * @param $state
      * @return string
      */
-    protected function buildAuthUrlFromBase($url, $state)
+    protected function buildAuthUrlFromBase($url)
     {
-        return $url . '?' . http_build_query($this->getAuthParams($state), '', '&', $this->encodingType);
+        return $url . '?' . http_build_query($this->getAuthParams(), '', '&', $this->encodingType);
     }
 
     protected function getTokenParams($code)

@@ -24,13 +24,13 @@ class Wechat extends Channel
 
     protected $stateless = true;
 
-    protected function getAuthUrl($state)
+    protected function getAuthUrl()
     {
         $path = 'oauth2/authorize';
         if (in_array('snsapi_login', $this->scopes)) {
             $path = 'qrconnect';
         }
-        return $this->buildAuthUrlFromBase("https://open.weixin.qq.com/connect/{$path}", $state);
+        return $this->buildAuthUrlFromBase("https://open.weixin.qq.com/connect/{$path}");
     }
 
     protected function getAuthParams($state = null)
@@ -44,9 +44,9 @@ class Wechat extends Channel
         ], $this->parameters);
     }
 
-    protected function buildAuthUrlFromBase($url, $state)
+    protected function buildAuthUrlFromBase($url)
     {
-        $query = http_build_query($this->getAuthParams($state), '', '&', $this->encodingType);
+        $query = http_build_query($this->getAuthParams(), '', '&', $this->encodingType);
         return $url . '?' . $query . '#wechat_redirect';
     }
 
@@ -109,7 +109,7 @@ class Wechat extends Channel
         return User::make($user, [
             'id'     => 'openid',
             'name'   => 'nickname',
-            'avatar' => 'headimgurl'
+            'avatar' => 'headimgurl',
         ]);
     }
 }

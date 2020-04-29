@@ -25,9 +25,9 @@ class Qq extends Channel
      */
     protected $baseUrl = "https://graph.qq.com";
 
-    protected function getAuthUrl($state)
+    protected function getAuthUrl()
     {
-        return $this->buildAuthUrlFromBase($this->baseUrl . '/oauth2.0/authorize', $state);
+        return $this->buildAuthUrlFromBase($this->baseUrl . '/oauth2.0/authorize');
     }
 
     protected function getTokenUrl()
@@ -88,7 +88,7 @@ class Qq extends Channel
     {
         return User::make($user, [
             'name'   => 'nickname',
-            'avatar' => 'figureurl_qq_2'
+            'avatar' => 'figureurl_qq_2',
         ]);
     }
 

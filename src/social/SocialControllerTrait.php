@@ -10,9 +10,11 @@
 // +----------------------------------------------------------------------
 namespace yunwuxin\social;
 
+use think\App;
 use think\Config;
-use think\Session;
+use think\helper\Str;
 use yunwuxin\Social;
+use yunwuxin\social\exception\InvalidStateException;
 
 trait SocialControllerTrait
 {
@@ -31,7 +33,26 @@ trait SocialControllerTrait
         $social->setRedirectUrl($redirectUrl);
     }
 
-    public function redirectToSocial(Social $social, $channel, $bind = false)
+    protected function getState()
+    {
+        return Str::random(40);
+    }
+
+    protected function isStateless(App $app, Channel $channel)
+    {
+        return $channel->isStateless() || !$app->exists('session');
+    }
+
+    protected function hasInvalidState(App $app, Channel $channel)
+    {
+        if ($this->isStateless($app, $channel)) {
+            return false;
+        }
+        $state = $app->session->pull('state');
+        return !(strlen($state) > 0 && $app->request->param('state') === $state);
+    }
+
+    public function redirectToSocial(Social $social, App $app, $channel, $bind = false)
     {
         $social = $social->channel($channel);
 
@@ -45,6 +66,13 @@ trait SocialControllerTrait
             $this->beforeRedirect($social);
         }
 
+        if ($this->isStateless($app, $social)) {
+            $app->session->set('state', $state = $this->getState());
+            $social->with([
+                'state' => $state,
+            ]);
+        }
+
         return $social->redirect();
     }
 
@@ -53,16 +81,21 @@ trait SocialControllerTrait
         return $this->redirectToSocial($social, $channel, true);
     }
 
-    protected function getUser(Social $social, $channel)
+    protected function getUser(App $app, Social $social, $channel)
     {
         $social = $social->channel($channel);
         $this->setRedirectUrl($social, $channel);
+
+        if ($this->hasInvalidState($app, $social)) {
+            throw new InvalidStateException;
+        }
+
         return $social->user();
     }
 
-    public function handleSocialCallback(Social $social, Config $config, $channel)
+    public function handleSocialCallback(Social $social, App $app, Config $config, $channel)
     {
-        $user = $this->getUser($social, $channel);
+        $user = $this->getUser($app, $social, $channel);
 
         if ($social->checkUser($user)) {
             return redirect($config->get('social.redirect.complete'))->restore();
@@ -73,9 +106,9 @@ trait SocialControllerTrait
         return redirect($config->get('social.redirect.register'));
     }
 
-    public function handleSocialCallbackForBind(Social $social, Config $config, $channel)
+    public function handleSocialCallbackForBind(Social $social, App $app, Config $config, $channel)
     {
-        $user = $this->getUser($social, $channel);
+        $user = $this->getUser($app, $social, $channel);
 
         $social->setFlashUser($user);
 
