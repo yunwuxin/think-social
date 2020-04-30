@@ -104,7 +104,7 @@ trait SocialControllerTrait
                 'state'   => $request->param('state'),
             ],
         ]);
-        return "<script>window.opener.postMessage({$message})</script>";
+        return "<script>window.opener.postMessage({$message},'*');window.close();</script>";
     }
 
     public function handleSocialCallback(Social $social, App $app, Config $config, $channel)
