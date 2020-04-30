@@ -22,8 +22,6 @@ class Wechat extends Channel
 
     protected $scopes = ['snsapi_login'];
 
-    protected $stateless = true;
-
     protected function getAuthUrl()
     {
         $path = 'oauth2/authorize';
@@ -33,14 +31,13 @@ class Wechat extends Channel
         return $this->buildAuthUrlFromBase("https://open.weixin.qq.com/connect/{$path}");
     }
 
-    protected function getAuthParams($state = null)
+    protected function getAuthParams()
     {
         return array_merge([
             'appid'         => $this->clientId,
             'redirect_uri'  => $this->redirectUrl,
             'response_type' => 'code',
             'scope'         => $this->formatScopes($this->scopes, $this->scopeSeparator),
-            'state'         => $state ?: md5(time()),
         ], $this->parameters);
     }
 

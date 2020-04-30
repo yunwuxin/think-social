@@ -13,27 +13,28 @@ return [
     'channels'     => [
         'qq'     => [
             'client_id'     => '',
-            'client_secret' => ''
+            'client_secret' => '',
         ],
         'weibo'  => [
             'client_id'     => '',
-            'client_secret' => ''
+            'client_secret' => '',
         ],
         'github' => [
             'client_id'     => '',
-            'client_secret' => ''
+            'client_secret' => '',
         ],
         'wechat' => [
             'client_id'     => '',
-            'client_secret' => ''
-        ]
+            'client_secret' => '',
+        ],
     ],
     'route'        => false,
+    'api'          => false,
     'controller'   => \yunwuxin\social\Controller::class,
     'user_checker' => null,
     'redirect'     => [
         'bind'     => '/',
         'register' => '/',
-        'complete' => '/'
-    ]
+        'complete' => '/',
+    ],
 ];

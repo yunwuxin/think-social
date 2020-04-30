@@ -13,6 +13,7 @@ namespace yunwuxin\social;
 use think\App;
 use think\Config;
 use think\helper\Str;
+use think\Request;
 use yunwuxin\Social;
 use yunwuxin\social\exception\InvalidStateException;
 
@@ -66,7 +67,7 @@ trait SocialControllerTrait
             $this->beforeRedirect($social);
         }
 
-        if ($this->isStateless($app, $social)) {
+        if (!$this->isStateless($app, $social)) {
             $app->session->set('state', $state = $this->getState());
             $social->with([
                 'state' => $state,
@@ -76,9 +77,9 @@ trait SocialControllerTrait
         return $social->redirect();
     }
 
-    public function redirectToSocialForBind(Social $social, $channel)
+    public function redirectToSocialForBind(Social $social, App $app, $channel)
     {
-        return $this->redirectToSocial($social, $channel, true);
+        return $this->redirectToSocial($social, $app, $channel, true);
     }
 
     protected function getUser(App $app, Social $social, $channel)
@@ -91,6 +92,19 @@ trait SocialControllerTrait
         }
 
         return $social->user();
+    }
+
+    public function handleSocialCallForApi(Request $request, $channel)
+    {
+        $message = json_encode([
+            'source'  => 'social',
+            'payload' => [
+                'channel' => $channel,
+                'code'    => $request->param('code'),
+                'state'   => $request->param('state'),
+            ],
+        ]);
+        return "<script>window.opener.postMessage({$message})</script>";
     }
 
     public function handleSocialCallback(Social $social, App $app, Config $config, $channel)

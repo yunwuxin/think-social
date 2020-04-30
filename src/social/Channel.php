@@ -79,11 +79,15 @@ abstract class Channel
 
     /**
      * 获取第三方平台登录成功后的用户
+     * @param null|string $code
      * @return User
      */
-    public function user()
+    public function user($code = null)
     {
-        $accessToken = $this->getAccessToken($this->getCode());
+        if (is_null($code)) {
+            $code = $this->getCode();
+        }
+        $accessToken = $this->getAccessToken($code);
 
         $user = $this->getUserByToken($accessToken);
 
