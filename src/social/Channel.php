@@ -12,9 +12,7 @@ namespace yunwuxin\social;
 
 use GuzzleHttp\Client;
 use InvalidArgumentException;
-use think\helper\Str;
 use think\Request;
-use yunwuxin\social\exception\InvalidStateException;
 
 abstract class Channel
 {
@@ -40,6 +38,8 @@ abstract class Channel
     /** @var Request */
     protected $request;
 
+    protected $clientConfig = [];
+
     public function __construct(Request $request, $config)
     {
         if (!isset($config['client_id']) || !isset($config['client_secret'])) {
@@ -48,7 +48,12 @@ abstract class Channel
 
         $this->clientId     = $config['client_id'];
         $this->clientSecret = $config['client_secret'];
-        $this->request      = $request;
+
+        if (isset($config['client_config'])) {
+            $this->clientConfig = $config['client_config'];
+        }
+
+        $this->request = $request;
     }
 
     /**
@@ -197,7 +202,7 @@ abstract class Channel
     protected function getHttpClient()
     {
         if (is_null($this->httpClient)) {
-            $this->httpClient = new Client();
+            $this->httpClient = new Client($this->clientConfig);
         }
         return $this->httpClient;
     }
