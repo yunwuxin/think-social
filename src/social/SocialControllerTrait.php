@@ -91,7 +91,7 @@ trait SocialControllerTrait
             throw new InvalidStateException;
         }
 
-        return $social->user();
+        return $social->user()->setChannel($channel);
     }
 
     public function handleSocialCallForApi(Request $request, $channel)
