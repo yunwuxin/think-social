@@ -45,13 +45,16 @@ class Github extends Channel
 
     protected function getUserByToken(AccessToken $token)
     {
-        $userUrl  = 'https://api.github.com/user?access_token=' . $token->getToken();
-        $response = $this->getHttpClient()->get(
-            $userUrl, $this->getRequestOptions()
+        $userUrl  = 'https://api.github.com/user';
+        $response = $this->getHttpClient()->get($userUrl, [
+                'headers' => [
+                    'Accept'        => 'application/vnd.github.v3+json',
+                    'Authorization' => "token {$token->getToken()}",
+                ],
+            ]
         );
-        $user     = json_decode($response->getBody(), true);
 
-        return $user;
+        return json_decode($response->getBody(), true);
     }
 
     /**
@@ -63,22 +66,8 @@ class Github extends Channel
     {
         return User::make($user, [
             'nickname' => 'login',
-            'avatar'   => 'avatar_url'
+            'avatar'   => 'avatar_url',
         ]);
-    }
-
-    /**
-     * 设置http请求参数
-     *
-     * @return array
-     */
-    protected function getRequestOptions()
-    {
-        return [
-            'headers' => [
-                'Accept' => 'application/vnd.github.v3+json',
-            ],
-        ];
     }
 
 }
