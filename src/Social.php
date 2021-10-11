@@ -10,6 +10,8 @@
 // +----------------------------------------------------------------------
 namespace yunwuxin;
 
+use InvalidArgumentException;
+use think\helper\Arr;
 use think\Manager;
 use yunwuxin\social\Channel;
 use yunwuxin\social\channel\Github;
@@ -36,14 +38,45 @@ class Social extends Manager
         return $this->driver($name);
     }
 
+    /**
+     * 获取配置
+     * @param null|string $name 名称
+     * @param mixed $default 默认值
+     * @return mixed
+     */
+    public function getConfig(string $name = null, $default = null)
+    {
+        if (!is_null($name)) {
+            return $this->app->config->get('social.' . $name, $default);
+        }
+
+        return $this->app->config->get('social');
+    }
+
+    /**
+     * 获取驱动配置
+     * @param string $channel
+     * @param ?string $name
+     * @param null $default
+     * @return array
+     */
+    public function getChannelConfig(string $channel, string $name = null, $default = null)
+    {
+        if ($config = $this->getConfig("channels.{$channel}")) {
+            return Arr::get($config, $name, $default);
+        }
+
+        throw new InvalidArgumentException("Channel [$channel] not found.");
+    }
+
     protected function resolveType(string $name)
     {
-        return $this->app->config->get("social.channels.{$name}.type") ?? $name;
+        return $this->getChannelConfig($name, 'type', $name);
     }
 
     protected function resolveConfig(string $name)
     {
-        return $this->app->config->get("social.channels.{$name}", []);
+        return $this->getChannelConfig($name);
     }
 
     public function checkUser(User $user, $autoLogin = true): bool
