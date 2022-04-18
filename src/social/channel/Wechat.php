@@ -11,6 +11,7 @@
 
 namespace yunwuxin\social\channel;
 
+use think\Request;
 use yunwuxin\social\AccessToken;
 use yunwuxin\social\Channel;
 use yunwuxin\social\exception\Exception;
@@ -21,6 +22,17 @@ class Wechat extends Channel
     protected $baseUrl = 'https://api.weixin.qq.com/sns';
 
     protected $scopes = ['snsapi_login'];
+
+    protected $unionid = false;
+
+    public function __construct(Request $request, $config)
+    {
+        parent::__construct($request, $config);
+
+        if (isset($config['unionid'])) {
+            $this->unionid = $config['unionid'];
+        }
+    }
 
     protected function getAuthUrl()
     {
@@ -103,8 +115,14 @@ class Wechat extends Channel
      */
     protected function makeUser(array $user)
     {
+        if ($this->unionid) {
+            $id = $this->unionid === true ? 'unionid' : $this->unionid;
+        } else {
+            $id = 'openid';
+        }
+
         return User::make($user, [
-            'id'     => 'openid',
+            'id'     => $id,
             'name'   => 'nickname',
             'avatar' => 'headimgurl',
         ]);
