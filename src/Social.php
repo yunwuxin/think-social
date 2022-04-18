@@ -93,7 +93,7 @@ class Social extends Manager
         $this->app->session->flash(self::USER_NAME, $user);
     }
 
-    public function getFlashUser(): User
+    public function getFlashUser(): ?User
     {
         return $this->app->session->get(self::USER_NAME);
     }
