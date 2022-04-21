@@ -15,9 +15,13 @@ use yunwuxin\Social;
 
 trait SocialControllerTrait
 {
-    public function redirectToSocial(Social $social, $channel)
+    public function redirectToSocial(Request $request, Social $social, $channel)
     {
-        return $social->channel($channel)->redirect();
+        $channel = $social->channel($channel);
+        if ($request->has('redirect_uri')) {
+            $channel->setRedirectUrl($request->param('redirect_uri'));
+        }
+        return $channel->redirect();
     }
 
     public function handleSocialCallback(Request $request, $channel)
