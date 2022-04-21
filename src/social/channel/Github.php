@@ -18,7 +18,7 @@ use yunwuxin\social\User;
 
 class Github extends Channel
 {
-    protected function getAuthUrl()
+    public function getAuthUrl()
     {
         return $this->buildAuthUrlFromBase('https://github.com/login/oauth/authorize');
     }

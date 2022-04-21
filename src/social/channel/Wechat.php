@@ -31,7 +31,7 @@ class Wechat extends Channel
         }
     }
 
-    protected function getAuthUrl()
+    public function getAuthUrl()
     {
         $path = 'oauth2/authorize';
         if (in_array('snsapi_login', $this->scopes)) {

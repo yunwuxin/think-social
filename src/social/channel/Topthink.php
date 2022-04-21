@@ -11,16 +11,32 @@ class Topthink extends Channel
 {
     protected $host = "https://www.topthink.com";
 
+    protected $implicit = false;
+
     protected function initialize($config)
     {
         if (!empty($config['host'])) {
             $this->host = rtrim($config['host'], '/');
         }
+
+        if (isset($config['implicit'])) {
+            $this->implicit = $config['implicit'];
+        }
     }
 
-    protected function getAuthUrl()
+    public function getAuthUrl()
     {
         return $this->buildAuthUrlFromBase("{$this->host}/oauth/authorize");
+    }
+
+    protected function getAuthParams()
+    {
+        return array_merge([
+            'client_id'     => $this->clientId,
+            'redirect_uri'  => $this->redirectUrl,
+            'scope'         => $this->formatScopes($this->scopes, $this->scopeSeparator),
+            'response_type' => $this->implicit ? 'token' : 'code',
+        ], $this->parameters);
     }
 
     protected function getTokenUrl()

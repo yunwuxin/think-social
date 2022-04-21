@@ -26,7 +26,7 @@ class Weibo extends Channel
 
     protected $scopes = ['email'];
 
-    protected function getAuthUrl()
+    public function getAuthUrl()
     {
         return $this->buildAuthUrlFromBase($this->baseUrl . '/oauth2/authorize');
     }

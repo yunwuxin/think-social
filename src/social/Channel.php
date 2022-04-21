@@ -205,7 +205,7 @@ abstract class Channel
         return !(strlen($state) > 0 && $this->request->param('state') === $state);
     }
 
-    abstract protected function getAuthUrl();
+    abstract public function getAuthUrl();
 
     abstract protected function getTokenUrl();
 
