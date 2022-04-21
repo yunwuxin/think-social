@@ -86,7 +86,7 @@ class Social extends Manager
         /** @var Channel $channel */
         $channel = parent::createDriver($name);
 
-        $redirectUrl = url('SOCIAL_CALLBACK', ['channel' => $channel])->domain(true);
+        $redirectUrl = url('SOCIAL_CALLBACK', ['channel' => $name])->domain(true);
         $channel->setRedirectUrl($redirectUrl);
         return $channel;
     }
