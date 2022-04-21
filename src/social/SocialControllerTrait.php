@@ -10,6 +10,7 @@
 // +----------------------------------------------------------------------
 namespace yunwuxin\social;
 
+use think\Request;
 use yunwuxin\Social;
 
 trait SocialControllerTrait
@@ -19,12 +20,15 @@ trait SocialControllerTrait
         return $social->channel($channel)->redirect();
     }
 
-    public function handleSocialCallback(Social $social, $channel)
+    public function handleSocialCallback(Request $request, $channel)
     {
-        $user    = $social->channel($channel)->user();
         $message = json_encode([
-            'source' => 'social',
-            'user'   => serialize($user),
+            'source'  => 'social',
+            'payload' => [
+                'channel' => $channel,
+                'code'    => $request->param('code'),
+                'state'   => $request->param('state'),
+            ],
         ]);
 
         return "<script>window.opener.postMessage({$message},'*');window.close();</script>";
