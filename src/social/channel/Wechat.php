@@ -11,7 +11,6 @@
 
 namespace yunwuxin\social\channel;
 
-use think\Request;
 use yunwuxin\social\AccessToken;
 use yunwuxin\social\Channel;
 use yunwuxin\social\exception\Exception;
@@ -25,10 +24,8 @@ class Wechat extends Channel
 
     protected $unionid = false;
 
-    public function __construct(Request $request, $config)
+    protected function initialize($config)
     {
-        parent::__construct($request, $config);
-
         if (isset($config['unionid'])) {
             $this->unionid = $config['unionid'];
         }

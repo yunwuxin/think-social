@@ -9,12 +9,7 @@
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
 
-function social_url($channel, $bind = false)
+function social_url($channel)
 {
-    if ($bind) {
-        $route = 'SOCIAL_BIND';
-    } else {
-        $route = 'SOCIAL';
-    }
-    return url($route, ['channel' => $channel]);
+    return url('SOCIAL', ['channel' => $channel]);
 }

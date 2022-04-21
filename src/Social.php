@@ -15,7 +15,6 @@ use think\helper\Arr;
 use think\Manager;
 use yunwuxin\social\Channel;
 use yunwuxin\social\channel\Github;
-use yunwuxin\social\User;
 
 /**
  * Class Social
@@ -24,8 +23,6 @@ use yunwuxin\social\User;
  */
 class Social extends Manager
 {
-    const USER_NAME = 'social_user';
-
     protected $namespace = '\\yunwuxin\\social\\channel\\';
 
     /**
@@ -79,23 +76,19 @@ class Social extends Manager
         return $this->getChannelConfig($name);
     }
 
-    public function checkUser(User $user, $autoLogin = true): bool
+    protected function resolveParams($name): array
     {
-        $checker = $this->app->config->get('social.user_checker');
-        if ($checker) {
-            return $this->app->invoke($checker, [$user, $autoLogin]);
-        }
-        return false;
+        return array_merge([$name], parent::resolveParams($name));
     }
 
-    public function setFlashUser(User $user)
+    protected function createDriver(string $name)
     {
-        $this->app->session->flash(self::USER_NAME, $user);
-    }
+        /** @var Channel $channel */
+        $channel = parent::createDriver($name);
 
-    public function getFlashUser(): ?User
-    {
-        return $this->app->session->get(self::USER_NAME);
+        $redirectUrl = url('SOCIAL_CALLBACK', ['channel' => $channel])->domain(true);
+        $channel->setRedirectUrl($redirectUrl);
+        return $channel;
     }
 
     /**

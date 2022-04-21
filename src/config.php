@@ -10,31 +10,28 @@
 // +----------------------------------------------------------------------
 
 return [
-    'channels'     => [
-        'qq'     => [
+    'channels'   => [
+        'qq'       => [
             'client_id'     => '',
             'client_secret' => '',
         ],
-        'weibo'  => [
+        'weibo'    => [
             'client_id'     => '',
             'client_secret' => '',
         ],
-        'github' => [
+        'github'   => [
             'client_id'     => '',
             'client_secret' => '',
         ],
-        'wechat' => [
+        'wechat'   => [
+            'client_id'     => '',
+            'client_secret' => '',
+        ],
+        'topthink' => [
             'client_id'     => '',
             'client_secret' => '',
         ],
     ],
-    'route'        => false,
-    'api'          => false,
-    'controller'   => \yunwuxin\social\Controller::class,
-    'user_checker' => null,
-    'redirect'     => [
-        'bind'     => '/',
-        'register' => '/',
-        'complete' => '/',
-    ],
+    'route'      => false,
+    'controller' => \yunwuxin\social\Controller::class,
 ];

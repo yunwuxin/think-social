@@ -68,7 +68,7 @@ class Qq extends Channel
         $openId = $me['openid'];
 
         $queries    = [
-            'access_token'       => $token,
+            'access_token'       => $token->getValue(),
             'openid'             => $openId,
             'oauth_consumer_key' => $this->clientId,
         ];

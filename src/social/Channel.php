@@ -12,10 +12,18 @@ namespace yunwuxin\social;
 
 use GuzzleHttp\Client;
 use InvalidArgumentException;
+use think\App;
+use think\helper\Str;
 use think\Request;
+use yunwuxin\social\exception\InvalidStateException;
 
 abstract class Channel
 {
+    protected $name;
+
+    /** @var User */
+    protected $user;
+
     protected $stateless = false;
 
     /** @var  Client Http 客户端 */
@@ -35,13 +43,20 @@ abstract class Channel
     /** @var array 自定义参数 */
     protected $parameters = [];
 
+    /** @var App */
+    protected $app;
+
     /** @var Request */
     protected $request;
 
     protected $clientConfig = [];
 
-    public function __construct(Request $request, $config)
+    public function __construct(App $app, Request $request, $name, $config)
     {
+        $this->app     = $app;
+        $this->request = $request;
+        $this->name    = $name;
+
         if (!isset($config['client_id']) || !isset($config['client_secret'])) {
             throw new InvalidArgumentException("Config client_id,client_secret must be supply.");
         }
@@ -53,7 +68,12 @@ abstract class Channel
             $this->clientConfig = $config['client_config'];
         }
 
-        $this->request = $request;
+        $this->initialize($config);
+    }
+
+    // 初始化
+    protected function initialize($config)
+    {
     }
 
     /**
@@ -61,6 +81,13 @@ abstract class Channel
      */
     public function redirect()
     {
+        if (!$this->isStateless()) {
+            $this->app->session->set('state', $state = $this->getState());
+            $this->with([
+                'state' => $state,
+            ]);
+        }
+
         return redirect($this->getAuthUrl());
     }
 
@@ -84,20 +111,39 @@ abstract class Channel
 
     /**
      * 获取第三方平台登录成功后的用户
-     * @param null|string $code
      * @return User
      */
-    public function user($code = null)
+    public function user()
     {
-        if (is_null($code)) {
-            $code = $this->getCode();
+        if ($this->user) {
+            return $this->user;
         }
+
+        if ($this->hasInvalidState()) {
+            throw new InvalidStateException;
+        }
+
+        $code        = $this->getCode();
         $accessToken = $this->getAccessToken($code);
 
         $user = $this->getUserByToken($accessToken);
 
+        return $this->user = $this->makeUser($user)
+            ->setToken($accessToken)
+            ->setChannel($this->name);
+    }
+
+    public function userFromToken($token)
+    {
+        $token = is_string($token) ? ['access_token' => $token] : $token;
+
+        $accessToken = AccessToken::make(['access_token' => $token]);
+
+        $user = $this->getUserByToken($accessToken);
+
         return $this->makeUser($user)
-                    ->setToken($accessToken);
+            ->setToken($token)
+            ->setChannel($this->name);
     }
 
     /**
@@ -133,9 +179,30 @@ abstract class Channel
         return $this->scopes;
     }
 
-    public function isStateless()
+    protected function isStateless()
     {
-        return $this->stateless;
+        return $this->stateless || !$this->app->exists('session');
+    }
+
+    public function stateless()
+    {
+        $this->stateless = true;
+
+        return $this;
+    }
+
+    protected function getState()
+    {
+        return Str::random(40);
+    }
+
+    protected function hasInvalidState()
+    {
+        if ($this->isStateless()) {
+            return false;
+        }
+        $state = $this->app->session->pull('state');
+        return !(strlen($state) > 0 && $this->request->param('state') === $state);
     }
 
     abstract protected function getAuthUrl();

@@ -15,7 +15,6 @@ use ArrayAccess;
 
 class User implements ArrayAccess
 {
-
     protected $raw;
 
     protected $user;
