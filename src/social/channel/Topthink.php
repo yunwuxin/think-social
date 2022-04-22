@@ -46,7 +46,7 @@ class Topthink extends Channel
 
     protected function getUserByToken(AccessToken $token)
     {
-        $userUrl  = "{$this->host}/api/user";
+        $userUrl  = "{$this->host}/api/me";
         $response = $this->getHttpClient()->get($userUrl, [
             'headers' => [
                 'Accept'        => 'application/json',

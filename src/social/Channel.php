@@ -142,7 +142,7 @@ abstract class Channel
         $user = $this->getUserByToken($accessToken);
 
         return $this->makeUser($user)
-            ->setToken($token)
+            ->setToken($accessToken)
             ->setChannel($this->name);
     }
 
