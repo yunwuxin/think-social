@@ -137,7 +137,7 @@ abstract class Channel
     {
         $token = is_string($token) ? ['access_token' => $token] : $token;
 
-        $accessToken = AccessToken::make(['access_token' => $token]);
+        $accessToken = AccessToken::make($token);
 
         $user = $this->getUserByToken($accessToken);
 
