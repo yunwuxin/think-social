@@ -20,6 +20,7 @@ use yunwuxin\social\channel\Github;
  * Class Social
  * @package yunwuxin
  * @mixin Github
+ * @property \think\App $app
  */
 class Social extends Manager
 {
