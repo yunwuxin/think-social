@@ -10,7 +10,7 @@
 // +----------------------------------------------------------------------
 
 return [
-    'channels'   => [
+    'channels' => [
         'qq'       => [
             'client_id'     => '',
             'client_secret' => '',
@@ -32,6 +32,4 @@ return [
             'client_secret' => '',
         ],
     ],
-    'route'      => false,
-    'controller' => \yunwuxin\social\Controller::class,
 ];

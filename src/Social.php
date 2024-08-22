@@ -26,13 +26,18 @@ class Social extends Manager
 {
     protected $namespace = '\\yunwuxin\\social\\channel\\';
 
+    protected $config = [];
+
     /**
      * 获取一个社会化渠道
      * @param string $name
      * @return Channel
      */
-    public function channel($name)
+    public function channel($name, $config = [])
     {
+        if (!empty($config)) {
+            $this->config[$name] = $config;
+        }
         return $this->driver($name);
     }
 
@@ -74,22 +79,12 @@ class Social extends Manager
 
     protected function resolveConfig(string $name)
     {
-        return $this->getChannelConfig($name);
+        return $this->config[$name] ?? $this->getChannelConfig($name);
     }
 
     protected function resolveParams($name): array
     {
         return array_merge([$name], parent::resolveParams($name));
-    }
-
-    protected function createDriver(string $name)
-    {
-        /** @var Channel $channel */
-        $channel = parent::createDriver($name);
-
-        $redirectUrl = url('SOCIAL_CALLBACK', ['channel' => $name])->domain(true);
-        $channel->setRedirectUrl($redirectUrl);
-        return $channel;
     }
 
     /**

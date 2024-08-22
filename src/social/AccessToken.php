@@ -43,6 +43,9 @@ class AccessToken
 
     public static function make($raw, $tokenName = 'access_token')
     {
+        if (!is_array($raw)) {
+            $raw = [$tokenName => $raw];
+        }
         return new self($raw, $raw[$tokenName]);
     }
 }
