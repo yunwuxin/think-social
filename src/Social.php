@@ -65,7 +65,9 @@ class Social extends Manager
      */
     public function getChannelConfig(string $channel, string $name = null, $default = null)
     {
-        if ($config = $this->getConfig("channels.{$channel}")) {
+        $config = $this->config[$channel] ?? $this->getConfig("channels.{$channel}");
+
+        if (!empty($config)) {
             return Arr::get($config, $name, $default);
         }
 
@@ -79,7 +81,7 @@ class Social extends Manager
 
     protected function resolveConfig(string $name)
     {
-        return $this->config[$name] ?? $this->getChannelConfig($name);
+        return $this->getChannelConfig($name);
     }
 
     protected function resolveParams($name): array

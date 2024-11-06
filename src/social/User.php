@@ -93,6 +93,11 @@ class User implements ArrayAccess
         }
     }
 
+    public function toArray()
+    {
+        return $this->user;
+    }
+
     #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
