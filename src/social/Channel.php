@@ -202,7 +202,7 @@ abstract class Channel
             return false;
         }
         $state = $this->app->session->pull('state');
-        return !(strlen($state) > 0 && $this->request->param('state') === $state);
+        return !(!empty($state) && $this->request->param('state') === $state);
     }
 
     abstract public function getAuthUrl();
