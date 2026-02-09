@@ -12,6 +12,7 @@ namespace yunwuxin\social;
 
 use GuzzleHttp\Client;
 use InvalidArgumentException;
+use think\Request;
 
 abstract class Channel
 {
@@ -73,14 +74,24 @@ abstract class Channel
     }
 
     /**
+     * @param string|Request $code
+     * @return mixed
+     */
+    protected function getCode($code)
+    {
+        return $code instanceof Request ? $code->param('code') : $code;
+    }
+
+    /**
      * 获取第三方平台登录成功后的用户
-     * @param string|AccessToken $token
+     * @param string|AccessToken|Request $token
      * @return User
      */
     public function user($token)
     {
         if (!$token instanceof AccessToken) {
-            $token = $this->getAccessToken($token);
+            $code  = $this->getCode($token);
+            $token = $this->getAccessToken($code);
         }
 
         $user = $this->getUserByToken($token);
